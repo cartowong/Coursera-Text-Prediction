@@ -1,0 +1,20 @@
+# Raw Data
+rawData/data.zip
+rawData/final
+
+# History files
+.Rhistory
+.Rapp.history
+
+# RStudio Project file
+*.Rproj
+
+# User files
+.Rproj.user/
+
+# Session Data files
+*.RData
+
+# Other
+.DS_Store
+temp/
