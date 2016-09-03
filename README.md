@@ -22,7 +22,7 @@ are the sub-directories.
 * `rawData`: The raw dataset is stored in this directory. We download the dataset from internet,
   unzip it, and save the files in this directory. No additional processing or transformation is
   performed to these files. Note that the raw data files are not under version control, but the
-  script for downloading and unzipping the file is in `downloadData.R` (under the root directory).
+  script for downloading and unzipping the file is in `downloadData.R`.
   
 * `sampleData`: Due to the size of the dataset, a lot of our analysis will be performed on a subset
   of the raw dataset. The script for generating the sample data files is in `util.R` (under the

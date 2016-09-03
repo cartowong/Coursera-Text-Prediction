@@ -18,3 +18,4 @@ rawData/final
 # Other
 .DS_Store
 temp/
+.Rproj.user
