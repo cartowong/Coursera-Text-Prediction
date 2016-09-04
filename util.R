@@ -9,6 +9,9 @@ rbern <- function(p) {
 
 # Read the input file line by line. For each line, write it to the output file with probability p.
 sampleText <- function(inputFilePath, outputFilePath, p) {
+  
+  set.seed(26) # for reproducibility
+  
   input <- file(inputFilePath, open = 'r')
   on.exit(close(input))
   output <- file(outputFilePath, open = 'w')
