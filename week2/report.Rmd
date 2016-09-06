@@ -1,0 +1,231 @@
+---
+title: "Coursera Capstone Project Week 2 Report"
+author: "Carto Wong"
+date: "September 5, 2016"
+output: html_document
+---
+
+# Dataset
+
+We will use the [capstone dataset](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip)
+provided by SwiftKey. The files are named LOCALE.SOURCE.txt where LOCALE is the each of the four locales
+*en_US*, *de_DE*, *ru_RU* and *fi_FI*, and SOURCE is *blogs*, *news*, or *twitter*. The data is from
+a corpus called [HC Corpora](www.corpora.heliohost.org). See the readme file at [http://www.corpora.heliohost.org/aboutcorpus.html](http://www.corpora.heliohost.org/aboutcorpus.html)
+for details on the corpora available. The files have been language filtered but may still contain some
+foreign text.
+
+For this report, we use the following 3 files:
+
+* en_US.blogs.txt
+* en_US.news.txt
+* en_US.twitter.txt
+
+# Sampling from the text documents
+
+The basic summary of the 3 files is as follow.
+
+| File                | Number of lines   | Size     |
+| ------------------- |:-----------------:| --------:|
+| en_US.blogs.txt     | 899,288           | 200.4 MB |
+| en_US.news.txt      | 1,010,242         | 196.3 MB |
+| en_US.twitter.txt   | 2,360,148         | 159.4 MB  |
+
+Due to the size of these files, we will use only a small subset of the data. For each of these
+file, we will keep approximately 1% of the lines. Below is the script that we use to generate
+the sample files.
+
+```{r}
+# Bernoulli random variable X, where P(X = 1) = p and P(X = 0) = 1 - p.
+rbern <- function(p) {
+  runif(n = 1) < p
+}
+
+# Read the input file line by line. For each line, write it to the output file with probability p.
+sampleText <- function(inputFilePath, outputFilePath, p) {
+  
+  set.seed(26) # for reproducibility
+  
+  input <- file(inputFilePath, open = 'r')
+  on.exit(close(input))
+  output <- file(outputFilePath, open = 'w')
+  on.exit(close(output))
+  
+  while (TRUE) {
+    line <- readLines(input, 1)
+    if (length(line) > 0 ) {
+      if (rbern(p)) {
+        writeLines(line, output)
+      }
+    }
+    else {
+      break
+    }
+  }
+}
+
+p <- 0.01
+inputDir <- '../rawData/final/en_US'
+outputDir <- '../sampleData'
+inputFileNames <- c('en_US.blogs.txt', 'en_US.news.txt', 'en_US.twitter.txt')
+for (inputFileName in inputFileNames) {
+  n <- nchar(inputFileName)
+  inputFilePath <- paste(inputDir, inputFileName, sep = '/')
+  outputFileName <- paste0(substr(inputFileName, 1, n-4), '.sample', substr(inputFileName, n -3, n))
+  outputFilePath <- paste(outputDir, outputFileName, sep = '/')
+
+  if (!file.exists(outputFilePath)) {
+    sampleText(inputFilePath, outputFilePath, p)
+  }
+}
+```
+
+Here is a summary for the sample files.
+
+| File                       | Number of lines   | Size     |
+| -------------------------- |:-----------------:| --------:|
+| en_US.blogs.sample.txt     | 8,980             | 2 MB     |
+| en_US.news.sample.txt      | 10,167            | 2 MB     |
+| en_US.twitter.sample.txt   | 23,517            | 1.6 MB   |
+
+# Data cleaning and tokenization
+
+We use the `tm` package to clean up the text documents, such as converting to lower case, removing punctuation, and stripping whitespaces.
+
+```{r, message=FALSE}
+library(tm)
+
+tokenize <- function(filePath,
+                     to.lower = FALSE,
+                     remove.punctuation = FALSE,
+                     strip.whitespace = FALSE,
+                     remove.stopwords = FALSE)
+{
+  # Read the text file and tokenize it.
+  #
+  # Args:
+  #   filePath {string}
+  #            the file path
+  #   to.lower {boolean}
+  #            Should it convert characters to lower case?
+  #   remove.punctuation {boolean}
+  #                      Should it remove punctuation?
+  #   strip.whitespace   {boolean}
+  #                      Should it strip whitespace?
+  #   remove.stopwords   {boolean}
+  #                      Should it remove stopwords?
+  #
+  # Returns: {list}
+  #          a list with the following properties:
+  #          - numLines {int}
+  #                     the number of lines
+  #          - text     {character}
+  #                     the clean text
+  #          - tokens   {character}
+  #                     a vector of words
+  
+  con <- file(filePath, open = 'r')
+  on.exit(close(con))
+  
+  lines <- readLines(con, n = -1L) # read up to the end of the file
+  text <- paste(lines, collapse = '\n')
+  textSource <- VectorSource(text)
+  corpus <- Corpus(textSource)
+  
+  # Cleaning
+  if (to.lower) {
+    corpus <- tm_map(corpus, content_transformer(tolower))
+  }
+  if (remove.punctuation) {
+    corpus <- tm_map(corpus, removePunctuation)
+  }
+  if (strip.whitespace) {
+    corpus <- tm_map(corpus, stripWhitespace)
+  }
+  if (remove.stopwords) {
+    corpus <- tm_map(corpus, removeWords, stopwords('english'))
+  }
+  
+  cleanText <- corpus[[1]]$content
+  tokens <- strsplit(cleanText, split = '[^a-z]+')[[1]]
+  
+  result = list()
+  result$numLines <- length(lines)
+  result$text <- cleanText
+  result$tokens <- tokens
+  result
+}
+
+blogs <- tokenize('../sampleData/en_US.blogs.sample.txt',
+                  to.lower = TRUE,
+                  remove.punctuation = TRUE,
+                  strip.whitespace = TRUE)
+news <- tokenize('../sampleData/en_US.news.sample.txt',
+                  to.lower = TRUE,
+                  remove.punctuation = TRUE,
+                  strip.whitespace = TRUE)
+twitter <- tokenize('../sampleData/en_US.twitter.sample.txt',
+                  to.lower = TRUE,
+                  remove.punctuation = TRUE,
+                  strip.whitespace = TRUE)
+```
+
+# Unigrams
+
+Using the tokenization, we compute the word (unigram) frequences for the 3 sample text documents.
+Below are the most frequent words that we find from the sample documents. Note that a lot of them
+are stopwords. We keep the stopwords since they will play a role in the n-gram model.
+
+```{r}
+# Combine the tokens from the 3 files and compute the word frequencies.
+tokens <- c(blogs$tokens, news$tokens, twitter$tokens)
+freq <- sort(table(tokens), decreasing = TRUE)
+head(freq, n = 50)
+```
+
+## Bigrams
+
+Let us compute the most frequent bigrams.
+
+```{r}
+tokens2 <- c(tokens[-1], '.')
+freq2 <- sort(table(paste(tokens, tokens2)), decreasing = TRUE)
+head(freq2, n = 50)
+```
+
+```{r, message=FALSE}
+library(ggplot2)
+
+totalFreq2 <- sum(freq2)
+df2 <- data.frame(bigram = names(freq2[1:10]), prob = freq2[1:10]/totalFreq2)
+ggplot(data = df2, aes(x = bigram, y = prob)) +
+  geom_bar(stat = 'identity', color = 'blue', fill = 'blue', alpha = 0.4) +
+  ggtitle('Bigram probabilities') +
+  xlab('bigram') +
+  ylab('probability') +
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+## Trigrams
+
+Similarly, we compute the frequencies of the trigrams.
+
+```{r}
+tokens3 <- c(tokens2[-1], '.')
+freq3 <- sort(table(paste(tokens, tokens2, tokens3)), decreasing = TRUE)
+head(freq3, n = 50)
+```
+
+```{r}
+totalFreq3 <- sum(freq3)
+df3 <- data.frame(trigram = names(freq3[1:10]), prob = freq3[1:10]/totalFreq3)
+ggplot(data = df3, aes(x = trigram, y = prob)) +
+  geom_bar(stat = 'identity', color = 'blue', fill = 'blue', alpha = 0.4) +
+  ggtitle('Trigram probabilities') +
+  xlab('trigram') +
+  ylab('probability') +
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+## Next step
+
+In the next 5 weeks, we will use the n-gram model to implement a text prediction app. The app takes a phrase from the user as input, and predicts the next word using our n-gram probabilities.

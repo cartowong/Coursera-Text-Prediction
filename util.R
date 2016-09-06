@@ -30,13 +30,35 @@ sampleText <- function(inputFilePath, outputFilePath, p) {
   }
 }
 
-# Tokenize the text document and return a vector of word counts in decreasing order.
-# This function performs the following clean up steps:
-#   - convert to lowercase
-#   - remove punctuation
-#   - strip white space
-#   - remove stop words
-wordFrequencies <- function(filePath) {
+tokenize <- function(filePath,
+                     to.lower = FALSE,
+                     remove.punctuation = FALSE,
+                     strip.whitespace = FALSE,
+                     remove.stopwords = FALSE)
+{
+  # Read the text file and tokenize it.
+  #
+  # Args:
+  #   filePath {string}
+  #            the file path
+  #   to.lower {boolean}
+  #            Should it convert characters to lower case?
+  #   remove.punctuation {boolean}
+  #                      Should it remove punctuation?
+  #   strip.whitespace   {boolean}
+  #                      Should it strip whitespace?
+  #   remove.stopwords   {boolean}
+  #                      Should it remove stopwords?
+  #
+  # Returns: {list}
+  #          a list with the following properties:
+  #          - numLines {int}
+  #                     the number of lines
+  #          - text     {character}
+  #                     the clean text
+  #          - tokens   {character}
+  #                     a vector of words
+  
   con <- file(filePath, open = 'r')
   on.exit(close(con))
   
@@ -46,13 +68,25 @@ wordFrequencies <- function(filePath) {
   corpus <- Corpus(textSource)
   
   # Cleaning
-  corpus <- tm_map(corpus, content_transformer(tolower))
-  corpus <- tm_map(corpus, removePunctuation)
-  corpus <- tm_map(corpus, stripWhitespace)
-  corpus <- tm_map(corpus, removeWords, stopwords('english'))
+  if (to.lower) {
+    corpus <- tm_map(corpus, content_transformer(tolower))
+  }
+  if (remove.punctuation) {
+    corpus <- tm_map(corpus, removePunctuation)
+  }
+  if (strip.whitespace) {
+    corpus <- tm_map(corpus, stripWhitespace)
+  }
+  if (remove.stopwords) {
+    corpus <- tm_map(corpus, removeWords, stopwords('english'))
+  }
   
-  dtm <- DocumentTermMatrix(corpus)
-  freq <- colSums(as.matrix(dtm))
-  freq <- sort(freq, decreasing = TRUE)
-  freq
+  cleanText <- corpus[[1]]$content
+  tokens <- strsplit(cleanText, split = '[^a-z]+')[[1]]
+  
+  result = list()
+  result$numLines <- length(lines)
+  result$text <- cleanText
+  result$tokens <- tokens
+  result
 }
