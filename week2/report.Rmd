@@ -31,7 +31,7 @@ The basic summary of the 3 files is as follow.
 | en_US.twitter.txt   | 2,360,148         | 159.4 MB  |
 
 Due to the size of these files, we will use only a small subset of the data. For each of these
-file, we will keep approximately 1% of the lines. Below is the script that we use to generate
+file, we will keep approximately 10% of the lines. Below is the script that we use to generate
 the sample files.
 
 ```{r}
@@ -63,7 +63,7 @@ sampleText <- function(inputFilePath, outputFilePath, p) {
   }
 }
 
-p <- 0.01
+p <- 0.1
 inputDir <- '../rawData/final/en_US'
 outputDir <- '../sampleData'
 inputFileNames <- c('en_US.blogs.txt', 'en_US.news.txt', 'en_US.twitter.txt')
@@ -83,9 +83,9 @@ Here is a summary for the sample files.
 
 | File                       | Number of lines   | Size     |
 | -------------------------- |:-----------------:| --------:|
-| en_US.blogs.sample.txt     | 8,980             | 2 MB     |
-| en_US.news.sample.txt      | 10,167            | 2 MB     |
-| en_US.twitter.sample.txt   | 23,517            | 1.6 MB   |
+| en_US.blogs.sample.txt     | 89,737            | 19.9 MB  |
+| en_US.news.sample.txt      | 100,838           | 19.5 MB  |
+| en_US.twitter.sample.txt   | 235,618           | 15.7 MB  |
 
 # Data cleaning and tokenization
 
