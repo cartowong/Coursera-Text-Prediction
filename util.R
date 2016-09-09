@@ -2,32 +2,14 @@
 
 library(tm)
 
-# Bernoulli random variable X, where P(X = 1) = p and P(X = 0) = 1 - p.
-rbern <- function(p) {
-  runif(n = 1) < p
-}
-
 # Read the input file line by line. For each line, write it to the output file with probability p.
 sampleText <- function(inputFilePath, outputFilePath, p) {
   
   set.seed(26) # for reproducibility
   
-  input <- file(inputFilePath, open = 'r')
-  on.exit(close(input))
-  output <- file(outputFilePath, open = 'w')
-  on.exit(close(output))
-  
-  while (TRUE) {
-    line <- readLines(input, 1)
-    if (length(line) > 0 ) {
-      if (rbern(p)) {
-        writeLines(line, output)
-      }
-    }
-    else {
-      break
-    }
-  }
+  lines <- readLines(inputFilePath)
+  sampleLines <- sample(lines, size = p * length(lines))
+  writeLines(sampleLines, outputFilePath)
 }
 
 tokenize <- function(filePath,
@@ -59,10 +41,7 @@ tokenize <- function(filePath,
   #          - tokens   {character}
   #                     a vector of words
   
-  con <- file(filePath, open = 'r')
-  on.exit(close(con))
-  
-  lines <- readLines(con, n = -1L) # read up to the end of the file
+  lines <- readLines(filePath)
   text <- paste(lines, collapse = '\n')
   textSource <- VectorSource(text)
   corpus <- Corpus(textSource)
