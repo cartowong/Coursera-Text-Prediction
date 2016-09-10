@@ -1,7 +1,5 @@
 # Common utility functions for this project.
 
-library(tm)
-
 # Read the input file line by line. For each line, write it to the output file with probability p.
 sampleText <- function(inputFilePath, outputFilePath, p) {
   
@@ -12,60 +10,35 @@ sampleText <- function(inputFilePath, outputFilePath, p) {
   writeLines(sampleLines, outputFilePath)
 }
 
-tokenize <- function(filePath,
-                     to.lower = FALSE,
-                     remove.punctuation = FALSE,
-                     strip.whitespace = FALSE,
-                     remove.stopwords = FALSE)
+tokenize <- function(filePath)
 {
   # Read the text file and tokenize it.
   #
   # Args:
   #   filePath {string}
   #            the file path
-  #   to.lower {boolean}
-  #            Should it convert characters to lower case?
-  #   remove.punctuation {boolean}
-  #                      Should it remove punctuation?
-  #   strip.whitespace   {boolean}
-  #                      Should it strip whitespace?
-  #   remove.stopwords   {boolean}
-  #                      Should it remove stopwords?
   #
   # Returns: {list}
   #          a list with the following properties:
   #          - numLines {int}
   #                     the number of lines
   #          - text     {character}
-  #                     the clean text
+  #                     the text content
   #          - tokens   {character}
-  #                     a vector of words
+  #                     a vector of words including two special words {BEGIN} and {END} to indicate
+  #                     the begin and end of a sentence
   
   lines <- readLines(filePath)
   text <- paste(lines, collapse = '\n')
-  textSource <- VectorSource(text)
-  corpus <- Corpus(textSource)
+  text <- tolower(text)
+  text <- gsub('\n+', ' {END} {BEGIN} ', text)
+  text <- paste0('{BEGIN} ', text, ' {END}')
   
-  # Cleaning
-  if (to.lower) {
-    corpus <- tm_map(corpus, content_transformer(tolower))
-  }
-  if (remove.punctuation) {
-    corpus <- tm_map(corpus, removePunctuation)
-  }
-  if (strip.whitespace) {
-    corpus <- tm_map(corpus, stripWhitespace)
-  }
-  if (remove.stopwords) {
-    corpus <- tm_map(corpus, removeWords, stopwords('english'))
-  }
-  
-  cleanText <- corpus[[1]]$content
-  tokens <- strsplit(cleanText, split = '[^a-z]+')[[1]]
+  tokens <- strsplit(text, split = '[^a-z|A-Z|{|}]+')[[1]]
   
   result = list()
   result$numLines <- length(lines)
-  result$text <- cleanText
+  result$text <- text
   result$tokens <- tokens
   result
 }
