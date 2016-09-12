@@ -7,3 +7,6 @@ combinedTokens <- c(blogsTokens, newsTokens, twitterTokens)
 
 bigramModel <- buildNGramModel(combinedTokens, n = 2)
 save(bigramModel, file = 'bigramModel.rData')
+
+trigramModel <- buildNGramModel(combinedTokens, n = 3)
+save(trigramModel, file = 'trigramModel.rData')

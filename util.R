@@ -106,6 +106,8 @@ buildNGramModel <- function(tokens, n)
     startTime <- proc.time()
   
     prefixFreq <- nGramFreq(tokens, n - 1)
+    totalPrefixFreq <- sum(prefixFreq)
+    
     lastWordFreq <- list()
     lastWordFreq <- lapply(names(prefixFreq), function (prefix) { c() })
     names(lastWordFreq) <- names(prefixFreq)
@@ -125,6 +127,18 @@ buildNGramModel <- function(tokens, n)
         prefixFreq[prefix])
     }
     
+    getTotalPrefixFreq <- function() {
+      totalPrefixFreq
+    }
+    
+    getNumPrefixes <- function() {
+      length(prefixFreq)
+    }
+    
+    getTopPrefixes <- function(k = 10) {
+      head(prefixFreq, n = k)
+    }
+    
     getLastWordFreq <- function(prefix) {
       if (is.null(lastWordFreq[[prefix]])) {
         table(c())
@@ -140,6 +154,9 @@ buildNGramModel <- function(tokens, n)
     # return
     list(
       getPrefixFreq = getPrefixFreq,
+      getTotalPrefixFreq = getTotalPrefixFreq,
+      getNumPrefixes = getNumPrefixes,
+      getTopPrefixes = getTopPrefixes,
       getLastWordFreq = getLastWordFreq,
       time = endTime - startTime
     )
