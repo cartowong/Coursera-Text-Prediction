@@ -98,7 +98,7 @@ buildNGramModel <- function(tokens, n)
     if (n < 2) {
       stop('It is expected that n >= 2.')
     }
-    if (length(tokens) < n) {
+    if (length(tokens) < max(n, 5)) {
       stop('Not enough tokens!')
     }
   
@@ -112,7 +112,7 @@ buildNGramModel <- function(tokens, n)
     lastWordFreq <- lapply(names(prefixFreq), function (prefix) { c() })
     names(lastWordFreq) <- names(prefixFreq)
     for (j in seq(1, length(tokens) - n + 1)) {
-      prefix <- paste(tokens[seq(j, j + n - 2)])
+      prefix <- paste(tokens[seq(j, j + n - 2)], collapse = ' ')
       word <- tokens[j + n - 1]
       lastWordFreq[[prefix]] <- c(lastWordFreq[[prefix]], word)
     }
