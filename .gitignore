@@ -20,6 +20,7 @@ rawData/final
 temp/
 .Rproj.user
 *.dcf
-temp.txt
+combined.txt
 *sample.txt
+temp.txt
 *.rData
