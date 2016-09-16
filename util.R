@@ -18,15 +18,9 @@ tokenize <- function(filePath)
     #   filePath {string}
     #            the file path
     #
-    # Returns: {list}
-    #          a list with the following properties:
-    #          - numLines {int}
-    #                     the number of lines
-    #          - text     {character}
-    #                     the text content
-    #          - tokens   {character[]}
-    #                     a vector of words including two special words {BEGIN} and {END} to indicate
-    #                     the begin and end of a sentence
+    # Returns: {character[]}
+    #          a vector of words including two special words {BEGIN} and {END} to indicate
+    #          the begin and end of a sentence
     
     lines <- readLines(filePath)
     text <- paste(lines, collapse = '\n')
@@ -34,13 +28,8 @@ tokenize <- function(filePath)
     text <- gsub('\n+', ' {END} {BEGIN} ', text)
     text <- paste0('{BEGIN} ', text, ' {END}')
     
-    tokens <- strsplit(text, split = '[^a-z|A-Z|{|}]+')[[1]]
-    
-    result = list()
-    result$numLines <- length(lines)
-    result$text <- text
-    result$tokens <- tokens
-    result
+    # return
+    strsplit(text, split = '[^a-z|A-Z|{|}]+')[[1]]
   }
 
 nGramFreq <- function(tokens, n, sortAsDecreasing = TRUE)
