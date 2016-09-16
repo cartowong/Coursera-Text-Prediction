@@ -21,4 +21,5 @@ temp/
 .Rproj.user
 *.dcf
 temp.txt
-
+*sample.txt
+*.rData

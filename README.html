@@ -73,8 +73,8 @@ img {
 <h1>File organization</h1>
 <p>The files are basically organized by week. Shared scripts are saved in the root directory. Below are the sub-directories.</p>
 <ul>
-<li><p><code>rawData</code>: The raw dataset is stored in this directory. We download the dataset from internet, unzip it, and save the files in this directory. No additional processing or transformation is performed to these files. Note that the raw data files are not under version control, but the script for downloading and unzipping the file is in <code>downloadData.R</code> (under the root directory).</p></li>
-<li><p><code>sampleData</code>: Due to the size of the dataset, a lot of our analysis will be performed on a subset of the raw dataset. The script for generating the sample data files is in <code>util.R</code> (under the root directory).</p></li>
+<li><p><code>rawData</code>: The raw dataset is stored in this directory. We download the dataset from internet, unzip it, and save the files in this directory. No additional processing or transformation is performed to these files. Note that the raw data files are not under version control, but the script for downloading and unzipping the file is in <code>downloadData.R</code>.</p></li>
+<li><p><code>data</code>: The training and testing data.</p></li>
 <li><p><code>weekX</code> (where X = 1, 2, …, 7): In each week we store the script for that week in a separate directory.</p></li>
 </ul>
 </div>
