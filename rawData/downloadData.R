@@ -4,6 +4,11 @@ rawDataFileName <- 'data.zip'
 rawDataFilePath <- paste0(rawDataDir, '/', rawDataFileName)
 
 if (!file.exists(rawDataFilePath)) {
+  
+  if (!dir.exists(rawDataDir)) {
+    dir.create(rawDataDir)
+  }
+  
   download.file(url = dataFileURL, destfile = rawDataFilePath)
   unzip(zipfile = rawDataFilePath, exdir = rawDataDir)
 }
