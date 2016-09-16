@@ -18,6 +18,7 @@ getOutputPath <- function(fileName) {
 }
 
 # Load the tokens.
+message(paste0('Loading the tokens from ', tokenFilePath, '...'))
 load(tokenFilePath)
 
 # Compute bigram frequencies.
@@ -29,5 +30,5 @@ message('Computing trigram frequencies...')
 trigramFreq <- nGramFreq(tokens, n = 3)
 
 # Save the bigram and trigram frequencies.
-message(paste0('Saving bigram and trigram frequencies into ', outputDir, '/freq.rData'))
-save(bigramFreq, trigramFreq, file = paste0(outputDir, '/freq.rData...'))
+message(paste0('Saving bigram and trigram frequencies into ', outputDir, '/freq.rData...'))
+save(bigramFreq, trigramFreq, file = paste0(outputDir, '/freq.rData'))
