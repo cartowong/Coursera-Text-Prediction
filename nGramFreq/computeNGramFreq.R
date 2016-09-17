@@ -1,4 +1,4 @@
-# Build n-gram models.
+# Compute n-gram frequencies.
 
 source('nGramUtil.R')
 
@@ -7,7 +7,7 @@ p <- 0.20
 
 tokenDir <- paste('data', as.integer(100 * p), sep = '/')
 tokenFilePath <- paste(tokenDir, 'tokens.rData', sep = '/')
-outputDir <- paste('model', as.integer(100 * p), sep = '/')
+outputDir <- paste('nGramFreq', as.integer(100 * p), sep = '/')
 
 if (!dir.exists(outputDir)) {
   dir.create(outputDir)
