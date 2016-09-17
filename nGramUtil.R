@@ -27,7 +27,7 @@ tokenize <- function(filePath)
     return(tokens)
   }
 
-nGramFreq <- function(tokens, n, sortAsDecreasing = TRUE)
+nGramFreq <- function(tokens, n, sortAsDecreasing = TRUE, message = TRUE)
   {
     # n-gram Frequencies.
     #
@@ -61,7 +61,9 @@ nGramFreq <- function(tokens, n, sortAsDecreasing = TRUE)
     }
     
     endTime <- proc.time()
-    print(endTime - startTime)
+    if (message) {
+      print(endTime - startTime)
+    }
     return(freq)
   }
 
