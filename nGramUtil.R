@@ -151,3 +151,19 @@ buildNGramModel <- function(tokens, n)
       time = endTime - startTime
     )
   }  
+
+trimNGramFreq <- function(nGramFreq)
+  {
+    startTime <- proc.time()
+    trimmedFreq <- nGramFreq[nGramFreq > 1]
+    trimmedFreq <- trimmedFreq[!grepl('BEGIN|END', names(trimmedFreq))]
+    
+    # What percentage of the n-grams remain?
+    p <- length(trimmedFreq) / length(nGramFreq)
+    message(paste0(format(100 * (1 - p), digits = 4), '% of the n-grams are trimmed.'))
+    
+    endTime <- proc.time()
+    print(endTime - startTime)
+    
+    trimmedFreq
+  }

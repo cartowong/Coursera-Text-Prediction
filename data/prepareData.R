@@ -4,7 +4,7 @@ source('fileUtil.R')
 source('nGramUtil.R')
 
 # You may change this parameter to any number between 0 and 1. The code below will continue to work.
-p <- 0.15
+p <- 0.20
 
 inputDir <- 'rawData/final/en_US'
 outputDir <- paste('data', as.integer(100 * p), sep = '/')
