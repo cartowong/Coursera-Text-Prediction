@@ -65,6 +65,33 @@ nGramFreq <- function(tokens, n, sortAsDecreasing = TRUE)
     return(freq)
   }
 
+trimNGramFreq <- function(nGramFreq)
+  {
+    # Trim n-gram frequencies by removing the n-grams with frequency 1 and those contains the
+    # special characters {BEGIN} or {END}.
+    #
+    # Args:
+    #   nGramFreq {table}
+    #             n-gram frequencies. The names are n-grams, and the values are the frequencies.
+    #
+    # Return: {table}
+    #         the trimmed n-gram frequency table.
+  
+    startTime <- proc.time()
+    trimmedFreq <- nGramFreq[nGramFreq > 1]
+    trimmedFreq <- trimmedFreq[!grepl('BEGIN|END', names(trimmedFreq))]
+    
+    # What percentage of the n-grams remain?
+    p <- length(trimmedFreq) / length(nGramFreq)
+    message(paste0(format(100 * (1 - p), digits = 4), '% of the n-grams are trimmed.'))
+    
+    endTime <- proc.time()
+    print(endTime - startTime)
+    
+    trimmedFreq
+}
+
+# This function is deprecated for performance reason.
 buildNGramModel <- function(tokens, n)
   {
     # Build n-gram model.
@@ -151,19 +178,3 @@ buildNGramModel <- function(tokens, n)
       time = endTime - startTime
     )
   }  
-
-trimNGramFreq <- function(nGramFreq)
-  {
-    startTime <- proc.time()
-    trimmedFreq <- nGramFreq[nGramFreq > 1]
-    trimmedFreq <- trimmedFreq[!grepl('BEGIN|END', names(trimmedFreq))]
-    
-    # What percentage of the n-grams remain?
-    p <- length(trimmedFreq) / length(nGramFreq)
-    message(paste0(format(100 * (1 - p), digits = 4), '% of the n-grams are trimmed.'))
-    
-    endTime <- proc.time()
-    print(endTime - startTime)
-    
-    trimmedFreq
-  }
