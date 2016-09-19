@@ -73,3 +73,47 @@ for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
 # Run the tasks.
 results <- lapply(tasks, function(task) { task() })
 save(results, file = 'results.rData')
+
+# Format the results.
+j <- 1
+for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
+  for (useQuadgrams in c(TRUE, FALSE)) {
+    for (lazy in c(TRUE, FALSE)) {
+        results[[j]]$p <- p
+        results[[j]]$useQuadgrams <- useQuadgrams
+        results[[j]]$lazy <- lazy
+        j <- j + 1
+    }
+  }
+}
+
+numResults <- length(results)
+ps <- rep(NA, numResults)
+useQuadgrams <- rep(NA, numResults)
+lazies <- rep(NA, numResults)
+accuracies <- rep(NA, numResults)
+meanPredictionTimes <- rep(NA, numResults)
+evaluationTimes <- rep(NA, numResults)
+descriptions <- rep(NA, numResults)
+for (j in seq_along(results)) {
+  result <- results[[j]]
+  ps[j] <- result$p
+  useQuadgrams[j] <- result$useQuadgrams
+  lazies[j] <- result$lazy
+  accuracies[j] <- result$accuracy
+  meanPredictionTimes[j] <- result$meanPredictionTime
+  evaluationTimes[j] <- result$evaluationTime
+  descriptions[j] <- result$description
+}
+
+# Write the formatted results into a data frame.
+formattedResults <- data.frame(
+  p = ps,
+  useQuadgrams = useQuadgrams,
+  lazy = lazies,
+  accuracy = accuracies,
+  meanPredictionTime = meanPredictionTimes,
+  evaluationTime = evaluationTimes,
+  description = descriptions
+)
+save(formattedResults, file = 'formattedResults.rData')

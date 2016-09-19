@@ -16,7 +16,7 @@ findTopMatchingNGramProb <- function(pattern, nGramFreq, maxSize = 5) {
   return(matchingNGramProb)
 }
 
-predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy = FALSE) {
+predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy = TRUE) {
   # Predict the next word following a given phrase.
   #
   # Args:
@@ -26,6 +26,10 @@ predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy =
   #                      a list of n-gram frequency tables
   #   maxNumPredictions  {integer}
   #                      maximum number of predictions to be returned
+  #   lazy               {logical}
+  #                      Optional. Default to TRUE (recommended). If TRUE, it will not use the
+  #                      remaining frequency tables as long as enough predictions have been made.
+  #
   # Return: {table}
   #         The names of the returned table are the predicted next words, and the values are the
   #         estimated probabilities. (Note that these probabilities may sum up to be larger than 1,
