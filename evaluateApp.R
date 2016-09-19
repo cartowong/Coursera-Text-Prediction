@@ -56,7 +56,7 @@ createTask <- function(description, p, useQuadgrams, lazy) {
 }
 
 tasks <- c()
-for (p in c(0.01, 0.2, 0.3)) {
+for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
   for (useQuadgrams in c(TRUE, FALSE)) {
     for (lazy in c(TRUE, FALSE)) {
       description <- paste(
