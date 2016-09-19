@@ -16,18 +16,14 @@ findTopMatchingNGramProb <- function(pattern, nGramFreq, maxSize = 5) {
   return(matchingNGramProb)
 }
 
-predictNextWord <- function(phrase, bigramFreq, trigramFreq, quadgramFreq, maxNumPredictions = 5) {
+predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy = FALSE) {
   # Predict the next word following a given phrase.
   #
   # Args:
   #   phrase             {character}
   #                      the given phrase
-  #   bigramFreq         {table}
-  #                      bigram frequencies
-  #   trigramFreq        {table}
-  #                      trigram frequencies
-  #   quadgramFreq       {table}
-  #                      quadgram frequencies
+  #   nGramFreqList      {list}
+  #                      a list of n-gram frequency tables
   #   maxNumPredictions  {integer}
   #                      maximum number of predictions to be returned
   # Return: {table}
@@ -41,35 +37,23 @@ predictNextWord <- function(phrase, bigramFreq, trigramFreq, quadgramFreq, maxNu
   numTokens <- length(tokens)
   
   predictions <- c()
-  
-  if (numTokens >= 3) {
-    lastThreeTokens <- tokens[seq(numTokens - 2, numTokens)]
-    pattern <- paste0('^', lastThreeTokens[1], ' ', lastThreeTokens[2], ' ', lastThreeTokens[3], ' ')
-    matchingQuadgramProb <- findTopMatchingNGramProb(
-      pattern,
-      quadgramFreq,
-      maxSize = maxNumPredictions)
-    predictions <- c(predictions, matchingQuadgramProb)
-  }
-  
-  if (numTokens >= 2) {
-    lastTwoTokens <- tokens[seq(numTokens - 1, numTokens)]
-    pattern <- paste0('^', lastTwoTokens[1], ' ', lastTwoTokens[2], ' ')
-    matchingTrigramProb <- findTopMatchingNGramProb(
-      pattern,
-      trigramFreq,
-      maxSize = maxNumPredictions)
-    predictions <- c(predictions, matchingTrigramProb)
-  }
-  
-  if (numTokens >= 1) {
-    lastToken <- tokens[numTokens]
-    pattern <- paste0('^', lastToken, ' ')
-    matchingBigramProb <- findTopMatchingNGramProb(
-      pattern,
-      bigramFreq,
-      maxSize = maxNumPredictions)
-    predictions <- c(predictions, matchingBigramProb)    
+  for (nGramFreq in nGramFreqList) {
+    
+    if (lazy & length(predictions) >= maxNumPredictions) {
+      break
+    }
+    
+    n <- length(strsplit(names(nGramFreq)[1], split = ' ')[[1]])
+    if (numTokens >= n - 1) {
+      pattern <- paste(tokens[seq(numTokens - n + 2, numTokens)], collapse = ' ')
+      pattern <- paste0('^', pattern, ' ')
+      matchingNGramProb <- findTopMatchingNGramProb(
+        pattern,
+        nGramFreq,
+        maxSize = ifelse(lazy, maxNumPredictions - length(predictions), maxNumPredictions)
+      )
+      predictions <- c(predictions, matchingNGramProb)
+    }
   }
   
   predictions <- sort(predictions, decreasing = TRUE)
