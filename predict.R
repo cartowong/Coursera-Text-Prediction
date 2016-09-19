@@ -16,7 +16,7 @@ findTopMatchingNGramProb <- function(pattern, nGramFreq, maxSize = 5) {
   return(matchingNGramProb)
 }
 
-predictNextWord <- function(phrase, bigramFreq, trigramFreq, maxNumPredictions = 5) {
+predictNextWord <- function(phrase, bigramFreq, trigramFreq, quadgramFreq, maxNumPredictions = 5) {
   # Predict the next word following a given phrase.
   #
   # Args:
@@ -26,6 +26,8 @@ predictNextWord <- function(phrase, bigramFreq, trigramFreq, maxNumPredictions =
   #                      bigram frequencies
   #   trigramFreq        {table}
   #                      trigram frequencies
+  #   quadgramFreq       {table}
+  #                      quadgram frequencies
   #   maxNumPredictions  {integer}
   #                      maximum number of predictions to be returned
   # Return: {table}
@@ -40,26 +42,40 @@ predictNextWord <- function(phrase, bigramFreq, trigramFreq, maxNumPredictions =
   
   predictions <- c()
   
-  if ((numTokens >= 2) & (length(predictions) < maxNumPredictions)) {
+  if (numTokens >= 3) {
+    lastThreeTokens <- tokens[seq(numTokens - 2, numTokens)]
+    pattern <- paste0('^', lastThreeTokens[1], ' ', lastThreeTokens[2], ' ', lastThreeTokens[3], ' ')
+    matchingQuadgramProb <- findTopMatchingNGramProb(
+      pattern,
+      quadgramFreq,
+      maxSize = maxNumPredictions)
+    predictions <- c(predictions, matchingQuadgramProb)
+  }
+  
+  if (numTokens >= 2) {
     lastTwoTokens <- tokens[seq(numTokens - 1, numTokens)]
     pattern <- paste0('^', lastTwoTokens[1], ' ', lastTwoTokens[2], ' ')
     matchingTrigramProb <- findTopMatchingNGramProb(
       pattern,
       trigramFreq,
-      maxSize = maxNumPredictions - length(predictions))
+      maxSize = maxNumPredictions)
     predictions <- c(predictions, matchingTrigramProb)
   }
   
-  if ((numTokens >= 1) & (length(predictions) < maxNumPredictions)) {
+  if (numTokens >= 1) {
     lastToken <- tokens[numTokens]
     pattern <- paste0('^', lastToken, ' ')
     matchingBigramProb <- findTopMatchingNGramProb(
       pattern,
       bigramFreq,
-      maxSize = maxNumPredictions - length(predictions))
+      maxSize = maxNumPredictions)
     predictions <- c(predictions, matchingBigramProb)    
   }
   
   predictions <- sort(predictions, decreasing = TRUE)
+  if (length(predictions) > maxNumPredictions) {
+    predictions <- predictions[1:maxNumPredictions]
+  }
+  
   return(predictions)
 }

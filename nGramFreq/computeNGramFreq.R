@@ -27,9 +27,13 @@ computeNGramFreq <- function(p) {
   message('Computing trigram frequencies...')
   trigramFreq <- nGramFreq(trainTokens, n = 3)
   
-  # Save the bigram and trigram frequencies.
-  message(paste0('Saving bigram and trigram frequencies into ', outputDir, '/freq.rData...'))
-  save(bigramFreq, trigramFreq, file = paste0(outputDir, '/freq.rData'))
+  # Compute quadgram frequencies.
+  message('Computing quadgram frequencies...')
+  quadgramFreq <- nGramFreq(trainTokens, n = 4)
+  
+  # Save the bigram, trigram and quadgram frequencies.
+  message(paste0('Saving bigram, trigram and quadgram frequencies into ', outputDir, '/freq.rData...'))
+  save(bigramFreq, trigramFreq, quadgramFreq, file = paste0(outputDir, '/freq.rData'))
   
   # Trim the bigram frequencies.
   message('Trimming bigram frequencies...')
@@ -39,7 +43,11 @@ computeNGramFreq <- function(p) {
   message('Trimming trigram frequencies...')
   trimmedTrigramFreq <- trimNGramFreq(trigramFreq)
   
-  # Save the trimmed bigram and trigram frequencies.
-  message(paste0('Saving trimmed bigram and trigram frequencies into ', outputDir, '/trimmedFreq.rData...'))
-  save(trimmedBigramFreq, trimmedTrigramFreq, file = paste0(outputDir, '/trimmedFreq.rData'))
+  # Trim the quadgram frequencies.
+  message('Trimming quadgram frequencies...')
+  trimmedQuadgramFreq <- trimNGramFreq(quadgramFreq)
+  
+  # Save the trimmed bigram, trigram and quadgram frequencies.
+  message(paste0('Saving trimmed bigram, trigram and quadgram frequencies into ', outputDir, '/trimmedFreq.rData...'))
+  save(trimmedBigramFreq, trimmedTrigramFreq, trimmedQuadgramFreq, file = paste0(outputDir, '/trimmedFreq.rData'))
 }  
