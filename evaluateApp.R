@@ -64,7 +64,6 @@ for (p in c(0.01, 0.2, 0.3)) {
         paste('useQuadgrams', useQuadgrams, sep = ' = '),
         paste('lazy', lazy, sep = ' = '),
         sep = ', ')
-      print(description)
       task <- createTask(description, p, useQuadgrams, lazy)
       tasks <- c(tasks, task)
     }
