@@ -16,7 +16,7 @@ findTopMatchingNGramProb <- function(pattern, nGramFreq, maxSize = 5) {
   return(matchingNGramProb)
 }
 
-predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy = TRUE) {
+predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 10, lazy = TRUE) {
   # Predict the next word following a given phrase.
   #
   # Args:

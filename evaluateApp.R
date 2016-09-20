@@ -4,12 +4,13 @@ source('evaluate.R')
 
 # This function returns a task (no-argument function) which performs an evaluation
 # based on the given parameters.
-createTask <- function(description, p, useQuadgrams, lazy) {
+createTask <- function(description, p, useQuadgrams, maxNumPredictions, lazy) {
   
   description <- description
   p <- p
   useQuadgrams <- useQuadgrams
   lazy <- lazy
+  maxNumPredictions <- maxNumPredictions
   
   function() {
     startTime <- proc.time()
@@ -34,7 +35,7 @@ createTask <- function(description, p, useQuadgrams, lazy) {
     }
     
     predict <- function(prefix) {
-      predictNextWord(prefix, nGramFreqList, lazy = lazy)
+      predictNextWord(prefix, nGramFreqList, maxNumPredictions = maxNumPredictions, lazy = lazy)
     }
     
     result <- evaluateAccuracyAndPerformance(predict, testNGrams)
@@ -56,16 +57,42 @@ createTask <- function(description, p, useQuadgrams, lazy) {
 }
 
 tasks <- c()
-for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
-  for (useQuadgrams in c(TRUE, FALSE)) {
-    for (lazy in c(TRUE, FALSE)) {
-      description <- paste(
-        paste('p', p, sep = ' = '),
-        paste('useQuadgrams', useQuadgrams, sep = ' = '),
-        paste('lazy', lazy, sep = ' = '),
-        sep = ', ')
-      task <- createTask(description, p, useQuadgrams, lazy)
-      tasks <- c(tasks, task)
+taskInfoList <- c()
+pArray <- c(0.20)
+useQuadgramsArray <- c(TRUE)
+lazyArray <- c(TRUE)
+numPredictionsArray <- 1:10
+for (p in pArray) {
+  dataDir <- paste('data', as.integer(100 * p), sep = '/')
+  if (!dir.exists(dataDir)) {
+    prepareData(p)
+  }
+  
+  nGramFreqDir <- paste('nGramFreq', as.integer(100 * p), sep = '/')
+  if (!dir.exists(nGramFreqDir)) {
+    computeNGramFreq(p)
+  }
+  
+  for (useQuadgrams in useQuadgramsArray) {
+    for (lazy in lazyArray) {
+      for (numPredictions in numPredictionsArray) {
+        description <- paste(
+          paste('p', p, sep = ' = '),
+          paste('useQuadgrams', useQuadgrams, sep = ' = '),
+          paste('lazy', lazy, sep = ' = '),
+          paste('numPredictions', numPredictions, sep = ' = '),
+          sep = ', ')
+        task <- createTask(description, p, useQuadgrams, maxNumPredictions = numPredictions,  lazy = lazy)
+        tasks <- c(tasks, task)
+        
+        # Task info
+        taskInfo <- c()
+        taskInfo$p <- p
+        taskInfo$useQuadgrams <- useQuadgrams
+        taskInfo$lazy <- lazy
+        taskInfo$numPredictions <- numPredictions
+        taskInfoList <- c(taskInfoList, taskInfo) 
+      }
     }
   }
 }
@@ -74,36 +101,33 @@ for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
 results <- lapply(tasks, function(task) { task() })
 save(results, file = 'results.rData')
 
-# Format the results.
-j <- 1
-for (p in c(0.01, 0.2, 0.25, 0.3, 0.35)) {
-  for (useQuadgrams in c(TRUE, FALSE)) {
-    for (lazy in c(TRUE, FALSE)) {
-        results[[j]]$p <- p
-        results[[j]]$useQuadgrams <- useQuadgrams
-        results[[j]]$lazy <- lazy
-        j <- j + 1
-    }
-  }
+# Append variables to the results.
+for (j in seq_along(results)) {
+  results[[j]]$p <- taskInfoList[[1 + 4 * (j - 1)]]
+  results[[j]]$useQuadgrams <- taskInfoList[[2 + 4 * (j - 1)]]
+  results[[j]]$lazy <- taskInfoList[[3 + 4 * (j - 1)]]
+  results[[j]]$numPredictions <- taskInfoList[[4 * j]]
 }
+save(results, file = 'results.rData')
 
+# Format the result.
 numResults <- length(results)
 ps <- rep(NA, numResults)
 useQuadgrams <- rep(NA, numResults)
 lazies <- rep(NA, numResults)
+numPredictions <- rep(NA, numResults)
 accuracies <- rep(NA, numResults)
 meanPredictionTimes <- rep(NA, numResults)
 evaluationTimes <- rep(NA, numResults)
-descriptions <- rep(NA, numResults)
 for (j in seq_along(results)) {
   result <- results[[j]]
   ps[j] <- result$p
   useQuadgrams[j] <- result$useQuadgrams
   lazies[j] <- result$lazy
+  numPredictions[j] <- result$numPredictions
   accuracies[j] <- result$accuracy
   meanPredictionTimes[j] <- result$meanPredictionTime
   evaluationTimes[j] <- result$evaluationTime
-  descriptions[j] <- result$description
 }
 
 # Write the formatted results into a data frame.
@@ -112,8 +136,8 @@ formattedResults <- data.frame(
   useQuadgrams = useQuadgrams,
   lazy = lazies,
   accuracy = accuracies,
+  numPredictions = numPredictions,
   meanPredictionTime = meanPredictionTimes,
-  evaluationTime = evaluationTimes,
-  description = descriptions
+  evaluationTime = evaluationTimes
 )
 save(formattedResults, file = 'formattedResults.rData')
