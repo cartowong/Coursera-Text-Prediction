@@ -8,7 +8,7 @@ df1 <- filter(df1, lazy)
 g1 <- ggplot(df1, aes(x = p, y = accuracy, color = useQuadgrams)) +
       geom_point(size = 4) +
       geom_line(size = 1) +
-      ggtitle('Accuracy vs Data Size') +
+      ggtitle('Top-5 accuracy vs Data Size') +
       xlab('p') +
       ylab('accuracy')
 

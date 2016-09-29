@@ -118,7 +118,3 @@ predictions.
 <img style='display: block; margin-left: auto; margin-right: auto' src='accuracy_numPredictions.png'></img>
 
 <img style='display: block; margin-left: auto; margin-right: auto' src='meanPredictionTime_numPredictions.png'></img>
-
-We decide to increase the number of predictions from 5 to 10. This gives us 42% accuracy with a
-mean prediction time of 0.8 seconds (per prefiex).
-
