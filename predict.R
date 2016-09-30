@@ -36,9 +36,19 @@ predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy =
   #         since we are using back-off model. These probabilities may not necessarily come from
   #         the same probability space.) The returned table is sorted in decreasing probabilities.
   
+  # Quick return
+  if (is.null(phrase) | length(phrase) == 0) {
+    return(c())
+  }
+  
   phrase <- tolower(trimws(phrase))
   tokens <- strsplit(phrase, split = '[^a-z]+')[[1]]
   numTokens <- length(tokens)
+  
+  # Another quick return
+  if (numTokens == 0) {
+    return(c())
+  }
   
   predictions <- c()
   for (nGramFreq in nGramFreqList) {
@@ -60,7 +70,9 @@ predictNextWord <- function(phrase, nGramFreqList, maxNumPredictions = 5, lazy =
     }
   }
   
-  predictions <- sort(predictions, decreasing = TRUE)
+  if (length(predictions) > 1) {
+    predictions <- sort(predictions, decreasing = TRUE)
+  }
   if (length(predictions) > maxNumPredictions) {
     predictions <- predictions[1:maxNumPredictions]
   }
