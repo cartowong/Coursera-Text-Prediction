@@ -5,6 +5,12 @@ This repository contains my work to the data science capstone project. It is the
 7-week project, we are asked to perform text mining, create a text prediction model, and build a
 Shiny app which takes a phrase as input and predicts the next word.
 
+# Demo app
+
+A demo app is available at this URL:
+
+[https://cartowong.shinyapps.io/Next-Word-Predictor/](https://cartowong.shinyapps.io/Next-Word-Predictor/)
+
 # Data set
 
 We will use the [capstone dataset](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip)
